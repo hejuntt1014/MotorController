@@ -3,5 +3,5 @@
     "configuration": "UploadSpeed=115200,ClockSourceAndFrequency=HSI16M_HCLK16M,LowSpeedClockSource=None,xserial=generic,dbg=none,opt=osstd,SupplyVoltage=5V,BootConnection=defaule",
     "board": "AirM2M:AirMCU:Air001Dev",
     "output": "build",
-    "port": "COM4"
+    "port": "COM3"
 }

@@ -1,90 +1,113 @@
 #include "button_handling.h"
 #include "config.h"
 #include "motor_state_machine.h"
-#include <OneButton.h>
 
 extern MotorStateMachine motorStateMachine;
-extern OneButton btn1;
-extern OneButton btn2;
-extern OneButton ctrl1;
-extern OneButton ctrl2;
 
-ButtonState buttonState;  // 按钮状态结构体
+Button2 btn1, btn2;
+Button2 ctrl1, ctrl2;
 
-void onBtn1Press() {
-  buttonState.btn1Pressed = true;
-  if (!buttonState.antiPinchTriggered && buttonState.pressureSensorTriggered) {
+void pollButtons()
+{
+  btn1.loop();
+  btn2.loop();
+  ctrl1.loop();
+  ctrl2.loop();
+}
+
+void onBtn1Press(Button2 &btn)
+{
+  if (!ctrl2.isPressed() && ctrl1.isPressed())
+  {
     motorStateMachine.setState(ACTION_FORWARD_HOLD);
   }
 }
 
-void onBtn1Release() {
-  buttonState.btn1Pressed = false;
-  if (!buttonState.antiPinchTriggered) {
+void onBtn1Release(Button2 &btn)
+{
+  if (!ctrl2.isPressed())
+  {
     motorStateMachine.setState(ACTION_STOP);
   }
 }
 
-void onBtn2Press() {
-  buttonState.btn2Pressed = true;
-  if (!buttonState.antiPinchTriggered && buttonState.pressureSensorTriggered) {
+void onBtn2Press(Button2 &btn)
+{
+  if (!ctrl2.isPressed() && ctrl1.isPressed())
+  {
     motorStateMachine.setState(ACTION_REVERSE_HOLD);
   }
 }
 
-void onBtn2Release() {
-  buttonState.btn2Pressed = false;
-  if (!buttonState.antiPinchTriggered) {
+void onBtn2Release(Button2 &btn)
+{
+  if (!ctrl2.isPressed())
+  {
     motorStateMachine.setState(ACTION_STOP);
   }
 }
 
-void onPressureSensorPress() {
-  buttonState.pressureSensorTriggered = true;
-  if (!buttonState.antiPinchTriggered) {
+void onPressureSensorPress(Button2 &btn)
+{
+  if (!ctrl2.isPressed())
+  {
     DEBUG_PRINT("Pressure sensor triggered\n");
-    if (buttonState.btn1Pressed) {
+    if (btn1.isPressed())
+    {
       motorStateMachine.setState(ACTION_FORWARD_HOLD);
-    } else if (buttonState.btn2Pressed) {
+    }
+    else if (btn2.isPressed())
+    {
       motorStateMachine.setState(ACTION_REVERSE_HOLD);
     }
   }
 }
 
-void onPressureSensorRelease() {
-  buttonState.pressureSensorTriggered = false;
-  if (!buttonState.antiPinchTriggered) {
+void onPressureSensorRelease(Button2 &btn)
+{
+  if (!ctrl2.isPressed())
+  {
     DEBUG_PRINT("Pressure sensor released\n");
-    if (motorStateMachine.getCurrentState() != ACTION_FORWARD_AUTO && motorStateMachine.getCurrentState() != ACTION_REVERSE_AUTO) {
+    if (motorStateMachine.getCurrentState() != ACTION_FORWARD_AUTO && motorStateMachine.getCurrentState() != ACTION_REVERSE_AUTO)
+    {
       motorStateMachine.setState(ACTION_STOP);
     }
   }
 }
 
-void onAntiPinchPress() {
-  buttonState.antiPinchTriggered = true;
+void onAntiPinchPress(Button2 &btn)
+{
   DEBUG_PRINT("Anti-pinch triggered\n");
-  if (motorStateMachine.getCurrentState() == ACTION_REVERSE_STEP || motorStateMachine.getCurrentState() == ACTION_REVERSE_HOLD || motorStateMachine.getCurrentState() == ACTION_REVERSE_AUTO) {
+  if (motorStateMachine.getCurrentState() == ACTION_REVERSE_STEP || motorStateMachine.getCurrentState() == ACTION_REVERSE_HOLD || motorStateMachine.getCurrentState() == ACTION_REVERSE_AUTO)
+  {
     motorStateMachine.setState(ACTION_FORWARD_STEP);
-  } else {
+  }
+  else
+  {
     motorStateMachine.setState(ACTION_STOP);
   }
 }
 
-void onAntiPinchRelease() {
-  buttonState.antiPinchTriggered = false;
+void onAntiPinchRelease(Button2 &btn)
+{
   DEBUG_PRINT("Anti-pinch released\n");
 }
 
-void bindButtonEvents(OneButton& button, void(onPress)(), void(onRelease)()) {
-  button.attachPress(onPress);
-  button.attachClick(onRelease);
-  button.attachLongPressStop(onRelease);
-}
+void buttonSetup()
+{
+  btn1.begin(BUTTON1_PIN);
+  btn1.setPressedHandler(onBtn1Press);
+  btn1.setReleasedHandler(onBtn1Release);
 
-void buttonSetup() {
-  bindButtonEvents(btn1, static_cast<void (*)()>(onBtn1Press), static_cast<void (*)()>(onBtn1Release));
-  bindButtonEvents(btn2, static_cast<void (*)()>(onBtn2Press), static_cast<void (*)()>(onBtn2Release));
-  bindButtonEvents(ctrl1, static_cast<void (*)()>(onPressureSensorPress), static_cast<void (*)()>(onPressureSensorRelease));
-  bindButtonEvents(ctrl2, static_cast<void (*)()>(onAntiPinchPress), static_cast<void (*)()>(onAntiPinchRelease));
+  btn2.begin(BUTTON2_PIN);
+  btn2.setPressedHandler(onBtn2Press);
+  btn2.setReleasedHandler(onBtn2Release);
+
+  ctrl1.begin(PRESSURE_SENSOR_PIN);
+  ctrl1.setPressedHandler(onPressureSensorPress);
+  ctrl1.setReleasedHandler(onPressureSensorRelease);
+
+  ctrl2.begin(ANTI_PINCH_PIN);
+  ctrl2.setPressedHandler(onAntiPinchPress);
+  ctrl2.setReleasedHandler(onAntiPinchRelease);
 }

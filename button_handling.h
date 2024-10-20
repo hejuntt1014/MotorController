@@ -3,30 +3,24 @@
 #define BUTTON_HANDLING_H
 
 #include <Arduino.h>
+#include <Button2.h>
 
-// 按钮状态结构体定义
-struct ButtonState {
-  bool btn1Pressed = false;
-  bool btn2Pressed = false;
-  bool pressureSensorTriggered = false;
-  bool antiPinchTriggered = false;
-};
+// 外部声明按钮对象
+extern Button2 btn1;
+extern Button2 btn2;
+extern Button2 ctrl1;
+extern Button2 ctrl2;
 
-// 外部声明按钮状态
-extern ButtonState buttonState;
+void onBtn1Press(Button2 &btn);             // 按钮1按下事件处理函数
+void onBtn1Release(Button2 &btn);           // 按钮1释放事件处理函数
+void onBtn2Press(Button2 &btn);             // 按钮2按下事件处理函数
+void onBtn2Release(Button2 &btn);           // 按钮2释放事件处理函数
+void onPressureSensorPress(Button2 &btn);   // 压力传感器按下事件处理函数
+void onPressureSensorRelease(Button2 &btn); // 压力传感器释放事件处理函数
+void onAntiPinchPress(Button2 &btn);        // 防夹传感器按下事件处理函数
+void onAntiPinchRelease(Button2 &btn);      // 防夹传感器释放事件处理函数
 
+void buttonSetup(); // 初始化按钮设置
+void pollButtons(); // 轮询所有按钮状态
 
-void onBtn1Press();              // 按钮1按下事件处理函数
-void onBtn1Release();            // 按钮1释放事件处理函数
-void onBtn2Press();              // 按钮2按下事件处理函数
-void onBtn2Release();            // 按钮2释放事件处理函数
-void onPressureSensorPress();    // 压力传感器按下事件处理函数
-void onPressureSensorRelease();  // 压力传感器释放事件处理函数
-void onAntiPinchPress();         // 防夹传感器按下事件处理函数
-void onAntiPinchRelease();       // 防夹传感器释放事件处理函数
-
-
-// 初始化按钮设置
-void buttonSetup();
-
-#endif  // BUTTON_HANDLING_H
+#endif // BUTTON_HANDLING_H

@@ -32,22 +32,10 @@
 */
 
 // 全局对象
-MotorStateMachine motorStateMachine;
 RFModule rfModule;
 Beeper beeper;
-OneButton btn1(BUTTON1_PIN, true);
-OneButton btn2(BUTTON2_PIN, true);
-OneButton ctrl1(PRESSURE_SENSOR_PIN, true);
-OneButton ctrl2(ANTI_PINCH_PIN, true);
-
-// 轮询所有按钮状态
-void pollButtons()
-{
-  btn1.tick();
-  btn2.tick();
-  ctrl1.tick();
-  ctrl2.tick();
-}
+MotorStateMachine motorStateMachine(MOTOR_FORWARD_PIN, MOTOR_BACKWARD_PIN, DIRECTION_EEPROM_ADDR);
+MotorStateMachines motors = {&motorStateMachine, /* &motor2, ... */};  // 创建电机状态机向量
 
 void setup()
 {
@@ -59,9 +47,13 @@ void setup()
 
   initGPIO();
   buttonSetup();
-  motorStateMachine.init();
   rfModule.init();
   initWatchdog();
+
+  for (auto& motor : motors) {
+    motor->init();
+  }
+
   DEBUG_PRINT("System initialized\n");
 }
 
@@ -71,7 +63,10 @@ void loop()
 
   pollButtons();
   beeper.update(); // 蜂鸣器
-  motorStateMachine.update();
+  
+  for (auto& motor : motors) {
+    motor->update();
+  }
 
   if (rfModule.isInConfigMode())
   {

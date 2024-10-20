@@ -6,7 +6,8 @@
 extern Beeper beeper;
 
 // 构造函数，初始化状态机
-MotorStateMachine::MotorStateMachine() {
+MotorStateMachine::MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr)
+  : forwardPin(forwardPin), backwardPin(backwardPin), directionEEPROMAddr(directionEEPROMAddr) {
   currentState = ACTION_STOP;
   lastState = ACTION_STOP;
   lastActionTime = millis();
@@ -20,7 +21,7 @@ void MotorStateMachine::init() {
 // 从EEPROM加载电机方向状态
 void MotorStateMachine::loadDirectionFromEEPROM() {
   // 从 EEPROM 中读取方向状态到 motorDirection
-  EEPROM.get(DIRECTION_EEPROM_ADDR, motorDirection);
+  EEPROM.get(directionEEPROMAddr, motorDirection);
   DEBUG_PRINT("Loaded Direction from EEPROM: %lu\n", motorDirection);
 
   // 检查是否为有效方向，否则重置为 NORMAL
@@ -33,7 +34,7 @@ void MotorStateMachine::loadDirectionFromEEPROM() {
 
 // 保存当前方向到EEPROM
 void MotorStateMachine::saveDirectionToEEPROM() {
-  EEPROM.put(DIRECTION_EEPROM_ADDR, motorDirection);
+  EEPROM.put(directionEEPROMAddr, motorDirection);
 }
 
 // 切换电机方向并保存到EEPROM
@@ -50,21 +51,21 @@ int MotorStateMachine::getDirection() {
 
 // 在 motorControl 中使用当前方向
 void MotorStateMachine::motorControl(int direction) {
-  // 获取方向并计算最终方向
+  // 获取方向并计算最终方向  
   int finalDirection = direction * motorDirection;
 
   switch (finalDirection) {
     case 1:
-      digitalWrite(MOTOR_FORWARD_PIN, LOW);
-      digitalWrite(MOTOR_BACKWARD_PIN, HIGH);
+      digitalWrite(forwardPin, LOW);
+      digitalWrite(backwardPin, HIGH);
       break;
     case -1:
-      digitalWrite(MOTOR_FORWARD_PIN, HIGH);
-      digitalWrite(MOTOR_BACKWARD_PIN, LOW);
+      digitalWrite(forwardPin, HIGH);
+      digitalWrite(backwardPin, LOW);
       break;
     default:
-      digitalWrite(MOTOR_FORWARD_PIN, LOW);
-      digitalWrite(MOTOR_BACKWARD_PIN, LOW);
+      digitalWrite(forwardPin, LOW);
+      digitalWrite(backwardPin, LOW);
       break;
   }
 }

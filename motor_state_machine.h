@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <vector>
 
 // 电机初始全局运动方向(用于调整MA MB线序)
 enum MotorDirection {
@@ -24,7 +25,7 @@ enum ActionMode {
 // 电机状态机类
 class MotorStateMachine {
 public:
-  MotorStateMachine();  // 构造函数，初始化状态
+  MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr);  // 构造函数，初始化状态
   void init();
   void setState(ActionMode newState);  // 设置电机状态
   void update();                       // 更新电机状态
@@ -35,7 +36,10 @@ public:
   int getDirection();      // 获取当前方向
 
 private:
-  ActionMode currentState = ACTION_STOP;  // 当前电机状态
+  int forwardPin;
+  int backwardPin;
+  int directionEEPROMAddr;
+  ActionMode currentState = ACTION_STOP;  // 当前电机状态  
   ActionMode lastState = ACTION_STOP;     // 上一个电机状态
   unsigned long lastActionTime = 0;       // 上次动作的时间戳
 
@@ -49,5 +53,8 @@ private:
   void loadDirectionFromEEPROM();  // 从EEPROM加载方向状态
   void saveDirectionToEEPROM();    // 保存方向状态到EEPROM
 };
+
+// 定义电机状态机向量类型
+typedef std::vector<MotorStateMachine*> MotorStateMachines;
 
 #endif  // MOTOR_STATE_MACHINE_H
