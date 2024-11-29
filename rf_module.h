@@ -8,14 +8,17 @@
 class RFModule {
 public:
   void init();                  // 初始化RF模块
+  void handleMatch();           // 处理RF匹配
   void handleConfig();          // 处理RF配置
   void handleNormalMode();      // 处理RF正常模式
+  bool isInMatchMode() const;   // 判断是否处于匹配模式
   bool isInConfigMode() const;  // 判断是否处于配置模式
 
 private:
   RCSwitch rcSwitch;                     // RCSwitch对象
-  bool inConfigMode = true;              // 是否处于配置模式
-  unsigned long configStartTime = 0;     // 配置模式开始时间
+  bool inMatchMode = true;               // 是否处于匹配模式
+  bool inConfigMode = false;              // 是否处于配置模式
+  unsigned long matchStartTime = 0;     // 配置模式开始时间
   unsigned long storedRFCode = 0;        // 存储的RF代码
   unsigned long lastRFCodeTime = 0;      // 上次接收RF指令的时间
   unsigned long lastReceivedRFCode = 0;  // 上次接收到的RF代码

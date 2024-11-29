@@ -35,7 +35,8 @@
 RFModule rfModule;
 Beeper beeper;
 MotorStateMachine motorStateMachine(MOTOR_FORWARD_PIN, MOTOR_BACKWARD_PIN, DIRECTION_EEPROM_ADDR);
-MotorStateMachines motors = {&motorStateMachine, /* &motor2, ... */};  // 创建电机状态机向量
+MotorStateMachine motorStateMachine2(MOTOR2_FORWARD_PIN, MOTOR2_BACKWARD_PIN, DIRECTION_EEPROM_ADDR2);
+MotorStateMachines motors = {&motorStateMachine, &motorStateMachine2 /* &motor2, ... */}; // 创建电机状态机向量
 
 void setup()
 {
@@ -50,7 +51,8 @@ void setup()
   rfModule.init();
   initWatchdog();
 
-  for (auto& motor : motors) {
+  for (auto &motor : motors)
+  {
     motor->init();
   }
 
@@ -63,12 +65,17 @@ void loop()
 
   pollButtons();
   beeper.update(); // 蜂鸣器
-  
-  for (auto& motor : motors) {
+
+  for (auto &motor : motors)
+  {
     motor->update();
   }
 
-  if (rfModule.isInConfigMode())
+  if (rfModule.isInMatchMode())
+  {
+    rfModule.handleMatch();
+  }
+  else if (rfModule.isInConfigMode())
   {
     rfModule.handleConfig();
   }

@@ -15,12 +15,17 @@ struct GPIOConfig {
 const GPIOConfig gpioConfigs[] = {
     {MOTOR_FORWARD_PIN, OUTPUT, LOW},
     {MOTOR_BACKWARD_PIN, OUTPUT, LOW},
-    {SPEAKER_PIN, OUTPUT, LOW},
-    {PRESSURE_SENSOR_PIN, INPUT_PULLUP, HIGH},
+    {MOTOR2_FORWARD_PIN, OUTPUT, LOW},
+    {MOTOR2_BACKWARD_PIN, OUTPUT, LOW},
+    {SPEAKER_PIN, OUTPUT, HIGH},
+    {PRESSURE_SENSOR_PIN, INPUT_PULLUP, LOW},
     {ANTI_PINCH_PIN, INPUT_PULLUP, HIGH},
     {BUTTON1_PIN, INPUT_PULLUP, HIGH},
     {BUTTON2_PIN, INPUT_PULLUP, HIGH},
-    {RF_DATA_PIN, INPUT_PULLUP, HIGH}
+    {BUTTON3_PIN, INPUT_PULLUP, HIGH},
+    {BUTTON4_PIN, INPUT_PULLUP, HIGH},
+    {RF_DATA_PIN, INPUT_PULLUP, HIGH},
+    {CTRL_1_PIN, INPUT_PULLUP, HIGH}
 };
 
 // 初始化 GPIO
@@ -34,7 +39,8 @@ void initGPIO() {
 
 // 控制蜂鸣器状态
 void speakerControl(bool on) {
-    digitalWrite(SPEAKER_PIN, on ? HIGH : LOW);
+    // DEBUG_PRINT("SPEAKER %lu\n",on);
+    digitalWrite(SPEAKER_PIN, on ? LOW : HIGH);
 }
 
 // 获取动作模式名称
