@@ -65,12 +65,12 @@ void MotorStateMachine::motorControl(int direction)
   switch (finalDirection)
   {
   case 1:
-    digitalWrite(forwardPin, LOW);
-    digitalWrite(backwardPin, HIGH);
-    break;
-  case -1:
     digitalWrite(forwardPin, HIGH);
     digitalWrite(backwardPin, LOW);
+    break;
+  case -1:
+    digitalWrite(forwardPin, LOW);
+    digitalWrite(backwardPin, HIGH);
     break;
   default:
     digitalWrite(forwardPin, HIGH);
@@ -91,6 +91,7 @@ void MotorStateMachine::setState(ActionMode newState)
     printStateChange(getActionModeName(currentState));
   }
 }
+
 
 // 更新电机状态
 void MotorStateMachine::update()
