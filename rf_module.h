@@ -17,13 +17,15 @@ public:
 private:
   RCSwitch rcSwitch;                     // RCSwitch对象
   bool inMatchMode = true;               // 是否处于匹配模式
-  bool inConfigMode = false;              // 是否处于配置模式
-  unsigned long matchStartTime = 0;     // 配置模式开始时间
+  bool inConfigMode = false;             // 是否处于配置模式
+  unsigned long matchStartTime = 0;       // 配置模式开始时间
   unsigned long storedRFCode = 0;        // 存储的RF代码
   unsigned long lastRFCodeTime = 0;      // 上次接收RF指令的时间
   unsigned long lastReceivedRFCode = 0;  // 上次接收到的RF代码
   unsigned long pressStartTime = 0;      // 按键按下开始时间
   bool isPressing = false;               // 是否正在按键
+  bool isAgingTest = false;              // 是否在老化测试模式
+  unsigned long currentActionEndTime = 0; // 当前动作结束时间
 
   void saveRFCode(unsigned long code);     // 保存RF代码
   void loadRFCode();                       // 加载RF代码

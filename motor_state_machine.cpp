@@ -72,6 +72,10 @@ void MotorStateMachine::motorControl(int direction)
     digitalWrite(forwardPin, LOW);
     digitalWrite(backwardPin, HIGH);
     break;
+  case 0:
+    digitalWrite(forwardPin, LOW);
+    digitalWrite(backwardPin, LOW);
+    break;
   default:
     digitalWrite(forwardPin, HIGH);
     digitalWrite(backwardPin, HIGH);
@@ -133,16 +137,28 @@ void MotorStateMachine::reset()
 void MotorStateMachine::handleStop()
 {
   motorControl(0);
+  // if (millis() - lastActionTime < 50)
+  // {
+  //   motorControl(0);
+  // }
+  // else if (millis() - lastActionTime < 150)
+  // {
+  //   motorControl(-2);  
+  // }
+  // else
+  // {
+  //   motorControl(0);
+  // } 
 }
 
 // 处理电机运动
 void MotorStateMachine::handleMotion(bool isForward, bool isAuto, bool isStep)
 {
-
-  // 缓冲时间, 防止烧坏mos管
-  if (lastState != ACTION_STOP && (millis() - lastActionTime < 200))
+  // 检查是否需要电机刹车时间
+  //if (lastState != ACTION_STOP && (millis() - lastActionTime < MOTOR_BRAKE_TIME))
+  if (millis() - lastActionTime < MOTOR_BRAKE_TIME)
   {
-    handleStop();
+    handleStop();  // 电机刹车,防止反向电动势
     return;
   }
 

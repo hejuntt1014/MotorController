@@ -119,6 +119,47 @@ void RFModule::handleNormalMode()
 // 处理配置模式,在配置模式下,按storedRFCode退出配置模式返回正常模式,按RF_FORWARD_CODE_OFFSET配置电机1方向;按RF_REVERSE_CODE_OFFSET配置电机2方向
 void RFModule::handleConfig()
 {
+  // 处理老化测试模式
+  if(isAgingTest) {
+    unsigned long currentTime = millis();
+    
+    // 检查是否需要改变动作
+    if(currentTime >= currentActionEndTime) {
+      // 随机生成0-1的数字来决定动作(0:前进, 1:后退)
+      int action1 = random(2);
+      int action2 = random(2);
+      
+      // 随机生成动作持续时间(0-500ms)
+      unsigned long duration = random(AGING_TEST_DURATION);
+      currentActionEndTime = currentTime + duration;
+      
+      // 根据随机数设置电机1的状态
+      switch(action1) {
+        case 0:
+          motorStateMachine.setState(ACTION_FORWARD_AUTO);
+          break;
+        case 1:
+          motorStateMachine.setState(ACTION_REVERSE_AUTO);
+          break;
+      }
+      
+      // 根据随机数设置电机2的状态
+      switch(action2) {
+        case 0:
+          motorStateMachine2.setState(ACTION_FORWARD_AUTO);
+          break;
+        case 1:
+          motorStateMachine2.setState(ACTION_REVERSE_AUTO);
+          break;
+      }
+      
+      DEBUG_PRINT("Aging test - Motor1: %s, Motor2: %s, Duration: %lu ms\n", 
+                 action1 == 0 ? "Forward" : "Reverse",
+                 action2 == 0 ? "Forward" : "Reverse",
+                 duration);
+    }
+  }
+
   if (rcSwitch.available())
   {
     unsigned long code = rcSwitch.getReceivedValue();
@@ -140,8 +181,17 @@ void RFModule::handleConfig()
     DEBUG_PRINT("Received code in config mode: %lu\n", code);
     if (code == storedRFCode)
     {
-      motorStateMachine.setState(ACTION_STOP);
-      motorStateMachine2.setState(ACTION_STOP);
+      isAgingTest = !isAgingTest; // 切换老化测试状态
+      if(isAgingTest) {
+        DEBUG_PRINT("Starting aging test mode\n");
+        beeper.startBeep(3, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 开始时蜂鸣三声
+        currentActionEndTime = millis(); // 立即开始第一个动作
+      } else {
+        DEBUG_PRINT("Stopping aging test mode\n");
+        beeper.startBeep(1, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 结束时蜂鸣一声
+        motorStateMachine.setState(ACTION_STOP);
+        motorStateMachine2.setState(ACTION_STOP);
+      }
     }
     else if (code == storedRFCode + RF_FORWARD_CODE_OFFSET)
     {
