@@ -132,19 +132,20 @@ void onAntiPinchRelease(Button2 &btn)
 
 void buttonSetup()
 {
-  btn1.begin(BUTTON1_PIN, INPUT, false);
+  // void begin(byte attachTo, byte buttonMode = INPUT_PULLUP, boolean activeLow  = true);
+  btn1.begin(BUTTON1_PIN, INPUT, true);
   btn1.setPressedHandler(onBtn1Press);
   btn1.setReleasedHandler(onBtn1Release);
 
-  btn2.begin(BUTTON2_PIN, INPUT, false);
+  btn2.begin(BUTTON2_PIN, INPUT, true);
   btn2.setPressedHandler(onBtn2Press);
   btn2.setReleasedHandler(onBtn2Release);
 
-  btn3.begin(BUTTON3_PIN, INPUT, false);
+  btn3.begin(BUTTON3_PIN, INPUT, true);
   btn3.setPressedHandler(onBtn3Press);
   btn3.setReleasedHandler(onBtn3Release);
 
-  btn4.begin(BUTTON4_PIN, INPUT, false);
+  btn4.begin(BUTTON4_PIN, INPUT, true);
   btn4.setPressedHandler(onBtn4Press);
   btn4.setReleasedHandler(onBtn4Release);
 

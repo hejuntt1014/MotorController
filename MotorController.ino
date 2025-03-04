@@ -34,8 +34,8 @@
 // 全局对象
 RFModule rfModule;
 Beeper beeper;
-MotorStateMachine motorStateMachine(MOTOR_FORWARD_PIN, MOTOR_BACKWARD_PIN, DIRECTION_EEPROM_ADDR);
-MotorStateMachine motorStateMachine2(MOTOR2_FORWARD_PIN, MOTOR2_BACKWARD_PIN, DIRECTION_EEPROM_ADDR2);
+MotorStateMachine motorStateMachine(MOTOR_FORWARD_PIN, MOTOR_BACKWARD_PIN, DIRECTION_EEPROM_ADDR, 0);  // 第一个电机
+MotorStateMachine motorStateMachine2(MOTOR2_FORWARD_PIN, MOTOR2_BACKWARD_PIN, DIRECTION_EEPROM_ADDR2, 1);  // 第二个电机
 MotorStateMachines motors = {&motorStateMachine, &motorStateMachine2 /* &motor2, ... */}; // 创建电机状态机向量
 
 void setup()

@@ -6,12 +6,15 @@
 extern Beeper beeper;
 
 // 构造函数，初始化状态机
-MotorStateMachine::MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr)
-    : forwardPin(forwardPin), backwardPin(backwardPin), directionEEPROMAddr(directionEEPROMAddr)
+MotorStateMachine::MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr, int motorIndex)
+    : forwardPin(forwardPin), backwardPin(backwardPin), directionEEPROMAddr(directionEEPROMAddr), motorIndex(motorIndex)
 {
   currentState = ACTION_STOP;
   lastState = ACTION_STOP;
   lastActionTime = millis();
+  
+  // 根据电机索引设置固定延迟时间(第一个电机0ms, 第二个电机50ms)
+  randomDelay = motorIndex * 50;
 }
 
 // 初始化状态机并加载方向状态
@@ -156,7 +159,7 @@ void MotorStateMachine::handleMotion(bool isForward, bool isAuto, bool isStep)
 {
   // 检查是否需要电机刹车时间
   //if (lastState != ACTION_STOP && (millis() - lastActionTime < MOTOR_BRAKE_TIME))
-  if (millis() - lastActionTime < MOTOR_BRAKE_TIME)
+  if (millis() - lastActionTime <    + randomDelay)
   {
     handleStop();  // 电机刹车,防止反向电动势
     return;
@@ -174,5 +177,6 @@ void MotorStateMachine::handleMotion(bool isForward, bool isAuto, bool isStep)
 // 打印状态变更信息
 void MotorStateMachine::printStateChange(const char *stateName)
 {
+  DEBUG_PRINT("Motor random delay: %lu ms\n", randomDelay);
   DEBUG_PRINT("Motor state changed to: %s\n", stateName);
 }

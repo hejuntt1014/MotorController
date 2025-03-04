@@ -25,7 +25,7 @@ enum ActionMode {
 // 电机状态机类
 class MotorStateMachine {
 public:
-  MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr);  // 构造函数，初始化状态
+  MotorStateMachine(int forwardPin, int backwardPin, int directionEEPROMAddr, int motorIndex);  // 构造函数，初始化状态
   void init();
   void setState(ActionMode newState);  // 设置电机状态
   void update();                       // 更新电机状态
@@ -39,9 +39,12 @@ private:
   int forwardPin;
   int backwardPin;
   int directionEEPROMAddr;
+  int motorIndex;
   ActionMode currentState = ACTION_STOP;  // 当前电机状态  
   ActionMode lastState = ACTION_STOP;     // 上一个电机状态
   unsigned long lastActionTime = 0;       // 上次动作的时间戳
+  unsigned long motorDirection = NORMAL;  // 电机方向
+  unsigned long randomDelay = 0;           // 随机延迟时间(0-100ms)
 
   void handleStop();                                            // 处理停止状态
   void handleMotion(bool isForward, bool isAuto, bool isStep);  // 处理运动状态
@@ -49,7 +52,6 @@ private:
 
   void motorControl(int direction);  // 控制电机方向：1-正转, -1-反转, 0-停止(受到motorDirection影响)
 
-  int motorDirection = NORMAL;     // 默认电机方向
   void loadDirectionFromEEPROM();  // 从EEPROM加载方向状态
   void saveDirectionToEEPROM();    // 保存方向状态到EEPROM
 };

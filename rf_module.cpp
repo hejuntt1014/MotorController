@@ -181,16 +181,26 @@ void RFModule::handleConfig()
     DEBUG_PRINT("Received code in config mode: %lu\n", code);
     if (code == storedRFCode)
     {
-      isAgingTest = !isAgingTest; // 切换老化测试状态
-      if(isAgingTest) {
-        DEBUG_PRINT("Starting aging test mode\n");
-        beeper.startBeep(3, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 开始时蜂鸣三声
-        currentActionEndTime = millis(); // 立即开始第一个动作
-      } else {
-        DEBUG_PRINT("Stopping aging test mode\n");
-        beeper.startBeep(1, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 结束时蜂鸣一声
+      // 检查两个电机的状态
+      if(!isAgingTest && (motorStateMachine.getCurrentState() != ACTION_STOP || motorStateMachine2.getCurrentState() != ACTION_STOP)) {
+        // 如果有电机在运动,就停止它们
+        DEBUG_PRINT("Motors are running, stopping them first\n");
         motorStateMachine.setState(ACTION_STOP);
         motorStateMachine2.setState(ACTION_STOP);
+        beeper.startBeep(1, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 蜂鸣一声提示
+      } else {
+        // 切换老化测试状态
+        isAgingTest = !isAgingTest;
+        if(isAgingTest) {
+          DEBUG_PRINT("Starting aging test mode\n");
+          beeper.startBeep(3, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 开始时蜂鸣三声
+          currentActionEndTime = millis(); // 立即开始第一个动作
+        } else {
+          DEBUG_PRINT("Stopping aging test mode\n");
+          beeper.startBeep(1, SPEAKER_DURATION / 2, SPEAKER_INTERVA / 2); // 结束时蜂鸣一声
+          motorStateMachine.setState(ACTION_STOP);
+          motorStateMachine2.setState(ACTION_STOP);
+        }
       }
     }
     else if (code == storedRFCode + RF_FORWARD_CODE_OFFSET)
