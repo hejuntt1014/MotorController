@@ -195,13 +195,15 @@ void RFModule::handleConfig()
     }
     else if (code == storedRFCode + RF_FORWARD_CODE_OFFSET)
     {
-      motorStateMachine.setState(ACTION_FORWARD_AUTO);
+      motorStateMachine.setState(ACTION_STOP);
       motorStateMachine.toggleDirection();
+      motorStateMachine.setState(ACTION_FORWARD_AUTO);
     }
     else if (code == storedRFCode - RF_REVERSE_CODE_OFFSET)
     {
-      motorStateMachine2.setState(ACTION_FORWARD_AUTO);
+      motorStateMachine2.setState(ACTION_STOP);
       motorStateMachine2.toggleDirection();
+      motorStateMachine2.setState(ACTION_FORWARD_AUTO);
     }
     else if (code == storedRFCode - RF_CONFIG_MODE_CODE_OFFSET)
     {
