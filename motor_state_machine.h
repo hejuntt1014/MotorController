@@ -51,7 +51,7 @@ private:
   uint8_t targetPWM = 255;          // 目标PWM值
   unsigned long lastPWMUpdateTime = 0;  // 上次PWM更新时间
   unsigned long startPWMTime = 0;       // PWM开始增加的时间
-  static const unsigned long PWM_UPDATE_INTERVAL = 4;  // PWM更新间隔(ms)
+  static const unsigned long PWM_UPDATE_INTERVAL = 1;  // PWM更新间隔(ms)
   static const uint8_t PWM_STEP = 1;  // 每次PWM增加步长
 
   void handleStop();                                            // 处理停止状态
