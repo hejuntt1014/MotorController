@@ -45,6 +45,14 @@ private:
   unsigned long lastActionTime = 0;       // 上次动作的时间戳
   unsigned long motorDirection = NORMAL;  // 电机方向
   unsigned long randomDelay = 0;           // 随机延迟时间(0-100ms)
+  
+  // PWM相关变量
+  uint8_t currentPWM = 0;           // 当前PWM值
+  uint8_t targetPWM = 255;          // 目标PWM值
+  unsigned long lastPWMUpdateTime = 0;  // 上次PWM更新时间
+  unsigned long startPWMTime = 0;       // PWM开始增加的时间
+  static const unsigned long PWM_UPDATE_INTERVAL = 4;  // PWM更新间隔(ms)
+  static const uint8_t PWM_STEP = 1;  // 每次PWM增加步长
 
   void handleStop();                                            // 处理停止状态
   void handleMotion(bool isForward, bool isAuto, bool isStep);  // 处理运动状态
@@ -54,6 +62,14 @@ private:
 
   void loadDirectionFromEEPROM();  // 从EEPROM加载方向状态
   void saveDirectionToEEPROM();    // 保存方向状态到EEPROM
+  
+  // PWM控制相关函数
+  void updatePWM();  // 更新PWM值
+  void resetPWM();   // 重置PWM值
+  
+  // 状态判断辅助函数
+  bool isForwardState(ActionMode state) const;  // 判断是否为前进状态
+  bool isReverseState(ActionMode state) const;  // 判断是否为后退状态
 };
 
 // 定义电机状态机向量类型

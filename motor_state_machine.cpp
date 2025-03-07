@@ -21,6 +21,10 @@ MotorStateMachine::MotorStateMachine(int forwardPin, int backwardPin, int direct
 void MotorStateMachine::init()
 {
   loadDirectionFromEEPROM();
+  
+  // 确保初始状态为停止
+  analogWrite(forwardPin, 0);
+  analogWrite(backwardPin, 0);
 }
 
 // 从EEPROM加载电机方向状态
@@ -59,31 +63,87 @@ int MotorStateMachine::getDirection()
   return motorDirection;
 }
 
-// 在 motorControl 中使用当前方向
+// 在 motorControl 中使用当前方向和PWM控制
 void MotorStateMachine::motorControl(int direction)
 {
   // 获取方向并计算最终方向
   int finalDirection = direction * motorDirection;
+  
+  // 更新PWM值
+  updatePWM();
 
   switch (finalDirection)
   {
-  case 1:
-    digitalWrite(forwardPin, HIGH);
-    digitalWrite(backwardPin, LOW);
+
+  // case 1:
+  //   digitalWrite(forwardPin, HIGH);
+  //   digitalWrite(backwardPin, LOW);
+  //   break;
+  // case -1:
+  //   digitalWrite(forwardPin, LOW);
+  //   digitalWrite(backwardPin, HIGH);
+  //   break;
+
+  case 1:  // 正转
+    // 输出
+    // DEBUG_PRINT("%d\n", currentPWM);
+    analogWrite(forwardPin, currentPWM);
+    analogWrite(backwardPin, 0);
     break;
-  case -1:
-    digitalWrite(forwardPin, LOW);
-    digitalWrite(backwardPin, HIGH);
+  case -1:  // 反转
+    // DEBUG_PRINT("%d\n", currentPWM);
+    analogWrite(forwardPin, 0);
+    analogWrite(backwardPin, currentPWM);
     break;
-  case 0:
-    digitalWrite(forwardPin, LOW);
-    digitalWrite(backwardPin, LOW);
+  case 0:  // 停止
+    analogWrite(forwardPin, 0);
+    analogWrite(backwardPin, 0);
+    resetPWM();  // 重置PWM值
     break;
-  default:
-    digitalWrite(forwardPin, HIGH);
-    digitalWrite(backwardPin, HIGH);
+  default:  // 刹车
+    analogWrite(forwardPin, 255);
+    analogWrite(backwardPin, 255);
+    resetPWM();  // 重置PWM值
     break;
   }
+}
+
+// 更新PWM值
+void MotorStateMachine::updatePWM()
+{
+  unsigned long currentTime = millis();
+  
+  // 检查是否需要更新PWM
+  if (currentTime - lastPWMUpdateTime >= PWM_UPDATE_INTERVAL)
+  {
+    lastPWMUpdateTime = currentTime;
+    
+    // 如果当前PWM小于目标PWM,则逐步增加
+    if (currentPWM < targetPWM)
+    {
+      // 记录第一次PWM更新的时间
+      if (currentPWM == 0) {
+        startPWMTime = currentTime;
+      }
+      
+      // 先计算新的PWM值
+      uint8_t newPWM = currentPWM + PWM_STEP;
+      // 确保不超过目标值
+      currentPWM = (newPWM > targetPWM) ? targetPWM : newPWM;
+      
+      // 如果达到目标PWM，输出总时间
+      if (currentPWM == targetPWM) {
+        DEBUG_PRINT("PWM从0增加到%d花费时间: %lu ms\n", targetPWM, currentTime - startPWMTime);
+      }
+    }
+  }
+}
+
+// 重置PWM值
+void MotorStateMachine::resetPWM()
+{
+  currentPWM = 0;
+  lastPWMUpdateTime = millis();
 }
 
 // 设置电机状态
@@ -94,11 +154,35 @@ void MotorStateMachine::setState(ActionMode newState)
     lastState = currentState;
     currentState = newState;
     lastActionTime = millis();
+    
+    // 如果是从停止状态切换到运动状态，或者改变运动方向，重置PWM值
+    if (lastState == ACTION_STOP || 
+        (isForwardState(currentState) && isReverseState(lastState)) ||
+        (isReverseState(currentState) && isForwardState(lastState)))
+    {
+      resetPWM();
+    }
+    
     beeper.startBeep(SPEAKER_DURATION);
     printStateChange(getActionModeName(currentState));
   }
 }
 
+// 判断是否为前进状态
+bool MotorStateMachine::isForwardState(ActionMode state) const
+{
+  return state == ACTION_FORWARD_AUTO || 
+         state == ACTION_FORWARD_HOLD || 
+         state == ACTION_FORWARD_STEP;
+}
+
+// 判断是否为后退状态
+bool MotorStateMachine::isReverseState(ActionMode state) const
+{
+  return state == ACTION_REVERSE_AUTO || 
+         state == ACTION_REVERSE_HOLD || 
+         state == ACTION_REVERSE_STEP;
+}
 
 // 更新电机状态
 void MotorStateMachine::update()

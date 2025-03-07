@@ -46,6 +46,10 @@ void setup()
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  // 设置PWM全局参数
+  analogWriteFrequency(25000);  // 设置PWM频率为20kHz
+  analogWriteResolution(8);     // 设置PWM分辨率为8位(0-255)
+
   initGPIO();
   buttonSetup();
   rfModule.init();
