@@ -36,7 +36,7 @@ constexpr unsigned long AUTO_DURATION = 14000;        // 自动模式持续时�
 constexpr unsigned long RF_CONFIG_WINDOW = 3000;      // RF配置窗口时间 (ms)
 constexpr unsigned long RF_LONG_PRESS_DURATION = 500; // RF长按持续时间 (ms)
 constexpr unsigned long RF_DEBOUNCE_INTERVAL = 500;   // 正常模式下遥控器按键防抖间隔 (ms)
-constexpr unsigned long MOTOR_BRAKE_TIME = 200;       // 电机换向刹车时间,防止反向电动势烧毁MOS管 (ms)
+constexpr unsigned long MOTOR_BRAKE_TIME = 300;       // 电机换向刹车时间,防止反向电动势烧毁MOS管 (ms)
 
 // EEPROM存储地址
 constexpr unsigned long RF_EEPROM_ADDRESS = 0;      // RF代码存储地址
@@ -49,7 +49,7 @@ constexpr unsigned long RF_REVERSE_CODE_OFFSET = 2;     // 遥控器后退编码
 constexpr unsigned long RF_CONFIG_MODE_CODE_OFFSET = 3; // 遥控器进入配置模式
 
 // 老化测试配置
-constexpr unsigned long AGING_TEST_DURATION = 500; // 老化测试动作持续时间 (ms)
+constexpr unsigned long AGING_TEST_DURATION = 5000; // 老化测试动作持续时间 (ms)
 
 #if DEBUG_MODE
 #define DEBUG_PRINT(...) Serial.printf(__VA_ARGS__)

@@ -90,12 +90,13 @@ void RFModule::handleNormalMode()
       else if (code == storedRFCode + RF_FORWARD_CODE_OFFSET)
       {
         motorStateMachine.setState(ACTION_FORWARD_AUTO);
-        motorStateMachine2.setState(ACTION_FORWARD_AUTO);
+        motorStateMachine2.setState(ACTION_REVERSE_AUTO);
       }
       else if (code == storedRFCode - RF_REVERSE_CODE_OFFSET)
       {
         motorStateMachine.setState(ACTION_REVERSE_AUTO);
-        motorStateMachine2.setState(ACTION_REVERSE_AUTO);
+        motorStateMachine2.setState(ACTION_FORWARD_AUTO);
+        
       }
       else if (code == storedRFCode - RF_CONFIG_MODE_CODE_OFFSET)
       {

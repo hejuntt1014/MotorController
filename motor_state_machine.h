@@ -35,6 +35,10 @@ public:
   void toggleDirection();  // 切换方向并保存到EEPROM
   int getDirection();      // 获取当前方向
 
+  static const uint32_t MAX_PWM = 255;        // PWM最大值
+  static const uint32_t PWM_STEP = 5;         // PWM每次增加的值
+  static const unsigned long PWM_UPDATE_INTERVAL = 10; // PWM更新间隔(ms)
+
 private:
   int forwardPin;
   int backwardPin;
@@ -46,6 +50,12 @@ private:
   unsigned long motorDirection = NORMAL;  // 电机方向
   unsigned long randomDelay = 0;           // 随机延迟时间(0-100ms)
 
+  // PWM相关变量
+  uint32_t currentPWM;                // 当前PWM值
+  uint32_t targetPWM;                 // 目标PWM值
+  unsigned long lastPWMUpdateTime;     // 上次PWM更新时间
+  bool isRampingUp;                   // 是否在加速过程中
+
   void handleStop();                                            // 处理停止状态
   void handleMotion(bool isForward, bool isAuto, bool isStep);  // 处理运动状态
   void printStateChange(const char* stateName);                 // 打印状态变更信息
@@ -54,6 +64,9 @@ private:
 
   void loadDirectionFromEEPROM();  // 从EEPROM加载方向状态
   void saveDirectionToEEPROM();    // 保存方向状态到EEPROM
+
+  void updatePWM();                    // 更新PWM值
+  void setPWM(int pin, uint32_t value); // 设置PWM值
 };
 
 // 定义电机状态机向量类型
