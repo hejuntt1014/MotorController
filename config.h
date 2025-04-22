@@ -29,14 +29,14 @@ constexpr uint8_t RF_DATA_PIN = PB_0;         // 射频数据引脚(RF_DATA)
 constexpr uint8_t CTRL_1_PIN = PB_3;
 
 // 时间常量
-constexpr unsigned long SPEAKER_DURATION = 200;       // 蜂鸣器持续时间 (ms)
-constexpr unsigned long SPEAKER_INTERVA = 100;        // 蜂鸣器间隔时间 (ms)
-constexpr unsigned long STEP_DURATION = 1000;         // 点动持续时间 (ms)
-constexpr unsigned long AUTO_DURATION = 14000;        // 自动模式持续时间 (ms)
-constexpr unsigned long RF_CONFIG_WINDOW = 3000;      // RF配置窗口时间 (ms)
-constexpr unsigned long RF_LONG_PRESS_DURATION = 500; // RF长按持续时间 (ms)
-constexpr unsigned long RF_DEBOUNCE_INTERVAL = 500;   // 正常模式下遥控器按键防抖间隔 (ms)
-constexpr unsigned long MOTOR_BRAKE_TIME = 300;       // 电机换向刹车时间,防止反向电动势烧毁MOS管 (ms)
+constexpr unsigned long SPEAKER_DURATION = 200;        // 蜂鸣器持续时间 (ms)
+constexpr unsigned long SPEAKER_INTERVA = 100;         // 蜂鸣器间隔时间 (ms)
+constexpr unsigned long STEP_DURATION = 1000;          // 点动持续时间 (ms)
+constexpr unsigned long AUTO_DURATION = 14000;         // 自动模式持续时间 (ms)
+constexpr unsigned long RF_CONFIG_WINDOW = 3000;       // RF配置窗口时间 (ms)
+constexpr unsigned long RF_LONG_PRESS_DURATION = 1000; // RF长按持续时间 (ms)
+constexpr unsigned long RF_DEBOUNCE_INTERVAL = 500;    // 正常模式下遥控器按键防抖间隔 (ms)
+constexpr unsigned long MOTOR_BRAKE_TIME = 300;        // 电机换向刹车时间,防止反向电动势烧毁MOS管 (ms)
 
 // EEPROM存储地址
 constexpr unsigned long RF_EEPROM_ADDRESS = 0;      // RF代码存储地址

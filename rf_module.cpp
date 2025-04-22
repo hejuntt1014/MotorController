@@ -27,7 +27,20 @@ void RFModule::handleMatch()
     if (code != 0)
     {
       DEBUG_PRINT("Received code in config mode: %lu\n", code);
-      if (code == lastReceivedRFCode)
+      
+      // 检查是否是已知的有效按键
+      if (isValidRFCode(storedRFCode) && 
+          (code == storedRFCode || 
+           code == storedRFCode + RF_FORWARD_CODE_OFFSET ||
+           code == storedRFCode - RF_REVERSE_CODE_OFFSET ||
+           code == storedRFCode - RF_CONFIG_MODE_CODE_OFFSET))
+      {
+        // 如果是已知的有效按键,直接退出匹配模式
+        inMatchMode = false;
+        DEBUG_PRINT("Valid button pressed, exiting match mode\n");
+        beeper.startBeep(1, SPEAKER_DURATION, SPEAKER_INTERVA); // 短鸣一声提示
+      }
+      else if (code == lastReceivedRFCode)
       {
         if (!isPressing)
         {
@@ -250,7 +263,6 @@ void RFModule::saveRFCode(unsigned long code)
   if (!isValidRFCode(code))
   {
     DEBUG_PRINT("Invalid RF code: %lu\n", code);
-
     // 无效的RF代码，蜂鸣器响4下
     beeper.startBeep(4, SPEAKER_DURATION, SPEAKER_INTERVA);
     return;
@@ -259,19 +271,45 @@ void RFModule::saveRFCode(unsigned long code)
   if (code == storedRFCode)
   {
     DEBUG_PRINT("RF code already bound: %lu\n", code);
-
     // RF代码重复，蜂鸣器响2下
     beeper.startBeep(2, SPEAKER_DURATION, SPEAKER_INTERVA);
     return;
   }
 
-  // 代码有效且不重复，保存到EEPROM
-  EEPROM.put(RF_EEPROM_ADDRESS, code);
-  storedRFCode = code;
-  DEBUG_PRINT("RF code saved to EEPROM: %lu\n", code);
+  // 最多尝试3次写入
+  const int maxRetries = 3;
+  bool writeSuccess = false;
+  unsigned long verifyCode = 0;
 
-  // 保存成功，蜂鸣器响3下
-  beeper.startBeep(3, SPEAKER_DURATION, SPEAKER_INTERVA);
+  for(int i = 0; i < maxRetries && !writeSuccess; i++) {
+    // 禁用中断
+    noInterrupts();
+    // 写入EEPROM
+    EEPROM.put(RF_EEPROM_ADDRESS, code);
+    // 立即读回验证
+    EEPROM.get(RF_EEPROM_ADDRESS, verifyCode);
+    // 恢复中断
+    interrupts();
+    
+    // 验证写入是否成功
+    if(verifyCode == code) {
+      writeSuccess = true;
+      storedRFCode = code;
+      DEBUG_PRINT("RF code saved to EEPROM successfully: %lu\n", code);
+    } else {
+      DEBUG_PRINT("EEPROM write failed, retry %d: written=%lu, read=%lu\n", i+1, code, verifyCode);
+      delay(10); // 短暂延迟后重试
+    }
+  }
+
+  if(writeSuccess) {
+    // 保存成功，蜂鸣器响3下
+    beeper.startBeep(3, SPEAKER_DURATION, SPEAKER_INTERVA);
+  } else {
+    // 多次尝试失败，蜂鸣器响5下
+    DEBUG_PRINT("Failed to save RF code after %d attempts\n", maxRetries);
+    beeper.startBeep(5, SPEAKER_DURATION, SPEAKER_INTERVA);
+  }
 }
 
 // 加载RF代码
